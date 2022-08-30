@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +41,8 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(){
     val BASE_URL = "https://raw.githubusercontent.com/"
 
+    val cryptoModels = remember { mutableStateListOf<CryptoModel>() }
+
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
@@ -54,7 +58,7 @@ fun MainScreen(){
         ) {
             if (response.isSuccessful){
                 response.body()?.let { cryptoModelList ->
-
+                    cryptoModels.addAll(cryptoModelList)
                 }
             }
         }
@@ -65,6 +69,7 @@ fun MainScreen(){
     })
 
     Scaffold(topBar = { AppBar() }) {
+        CryptoList(cryptoList = cryptoModels)
         println(it)
     }
 }
@@ -80,7 +85,8 @@ fun CryptoList(cryptoList: List<CryptoModel>){
 
 @Composable
 fun CryptoRow(crypto: CryptoModel){
-    Column(modifier = Modifier.fillMaxWidth()
+    Column(modifier = Modifier
+        .fillMaxWidth()
         .background(color = MaterialTheme.colors.background)) {
         Text(text = crypto.currency,
             style = MaterialTheme.typography.h4,
